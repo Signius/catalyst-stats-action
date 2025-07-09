@@ -90,6 +90,36 @@ async function pollUntilComplete(ids, maxRetries = 30, interval = 10000) {
     }
     throw new Error('Polling timed out.');
 }
+// Transform the raw API data into the required format
+function transformData(rawData) {
+    const timestamp = new Date().toISOString();
+    const projects = rawData.map((project) => {
+        // Extract milestone completion count - this might need adjustment based on actual API response
+        const milestonesCompleted = project.milestones_completed || project.completed_milestones || 0;
+        return {
+            projectDetails: {
+                id: project.id,
+                title: project.title,
+                budget: project.budget,
+                milestones_qty: project.milestones_qty,
+                funds_distributed: project.funds_distributed,
+                project_id: project.project_id,
+                challenges: project.challenges,
+                name: project.name,
+                category: project.category,
+                url: project.url,
+                status: project.status,
+                finished: project.finished,
+                voting: project.voting
+            },
+            milestonesCompleted: milestonesCompleted
+        };
+    });
+    return {
+        timestamp,
+        projects
+    };
+}
 async function main() {
     // PROJECT_IDS is guaranteed to be defined here due to the validation check above
     const projectIds = PROJECT_IDS;
@@ -118,17 +148,21 @@ async function main() {
     }
     // Step 2: Poll for results
     console.log('⏳ Starting to poll for results...');
-    const results = await pollUntilComplete(projectIds);
-    // Step 3: Write results to file
+    const rawResults = await pollUntilComplete(projectIds);
+    // Step 3: Transform the data into the required format
+    console.log('🔄 Transforming data into required format...');
+    const transformedResults = transformData(rawResults);
+    console.log(`📊 Transformed data structure: ${JSON.stringify(transformedResults, null, 2)}`);
+    // Step 4: Write results to file
     console.log('📝 Writing results to file...');
     const fullPath = path.resolve(process.cwd(), OUTPUT_FILE);
     console.log(`📁 Full output path: ${fullPath}`);
     try {
         await fs.mkdir(path.dirname(fullPath), { recursive: true });
         console.log(`✅ Created directory: ${path.dirname(fullPath)}`);
-        await fs.writeFile(fullPath, JSON.stringify(results, null, 2));
+        await fs.writeFile(fullPath, JSON.stringify(transformedResults, null, 2));
         console.log(`✅ Results written to ${OUTPUT_FILE}`);
-        console.log(`📊 Results size: ${JSON.stringify(results, null, 2).length} characters`);
+        console.log(`📊 Results size: ${JSON.stringify(transformedResults, null, 2).length} characters`);
     }
     catch (error) {
         console.error('❌ Failed to write results to file:', error instanceof Error ? error.message : String(error));
