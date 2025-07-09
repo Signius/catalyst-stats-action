@@ -2,6 +2,16 @@
   "name": "catalyst-stats-action",
   "version": "1.0.0",
   "type": "module",
-  "main": "index.js",
-  "dependencies": {}
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.6",
+    "@types/node-fetch": "^2.6.12",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
 }
