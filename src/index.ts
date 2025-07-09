@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import fs from 'fs/promises'
 import path from 'path'
-import fetch from 'node-fetch'
 
 // —— Config from env / GitHub Action inputs ——
 const PROJECT_IDS = process.env['INPUT_PROJECT_IDS']
