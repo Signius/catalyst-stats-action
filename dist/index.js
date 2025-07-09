@@ -97,11 +97,13 @@ async function main() {
     // Step 1: Trigger the background function
     console.log('📡 Triggering background function...');
     console.log(`🌐 Trigger URL: ${triggerUrl}`);
-    console.log(`📦 Request body: ${JSON.stringify({ projectIds: projectIds.split(',') }, null, 2)}`);
+    console.log(`📦 Project IDs: ${projectIds}`);
     try {
-        const functionResponse = await makeRequest(triggerUrl, {
-            method: 'POST',
-            body: JSON.stringify({ projectIds: projectIds.split(',') })
+        // Send project IDs as query parameters instead of request body
+        const triggerUrlWithParams = `${triggerUrl}?projectIds=${encodeURIComponent(projectIds)}`;
+        console.log(`🌐 Trigger URL with params: ${triggerUrlWithParams}`);
+        const functionResponse = await makeRequest(triggerUrlWithParams, {
+            method: 'POST'
         });
         console.log('✅ Background function triggered successfully');
         console.log(`📊 Function response: ${JSON.stringify(functionResponse, null, 2)}`);
